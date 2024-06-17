@@ -1,5 +1,5 @@
+// Import and require express and Pool
 const express = require('express');
-// Import and require Pool
 const { Pool } = require('pg');
 
 const PORT = process.env.PORT || 3001;
@@ -21,6 +21,10 @@ const pool = new Pool(
 )
 
 pool.connect();
+
+
+
+
 
 
 
