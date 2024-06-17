@@ -25,12 +25,21 @@ function init() {
 
             switch(answer){
                 case "View all departments":
+                    pool.query('SELECT * FROM department', function (err, {rows}) {
+                        console.table(rows);
+                      });
                     
                     break;
                 case "View all Roles":
+                    pool.query('SELECT role.id, role.title, department.name as department, role.salary FROM role JOIN department ON role.department_id = department.id', function (err, {rows}) {
+                        console.log(rows);
+                      });
                     
                     break;
                 case "View all employees":
+                    pool.query('SELECT COUNT(id) AS total_count FROM favorite_books GROUP BY in_stock', function (err, {rows}) {
+                        console.log(rows);
+                      });
                     
                     break;
                 case "Add department":
