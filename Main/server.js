@@ -13,28 +13,22 @@ app.use(express.json());
 const pool = new Pool(
   {
     user: 'postgres',
-    password: '',
+    password: '3Q2LnY1Z',
     host: 'localhost',
-    database: 'movies_db'
+    database: 'employees_db'
   },
-  console.log(`Connected to the movies_db database.`)
+  console.log(`Connected to the employees_db database.`)
 )
 
 pool.connect();
 
 
-
-
-
-
-
-
 // Default response for any other request (Not Found)
 app.use((req, res) => {
-    res.status(404).end();
-  });
+  res.status(404).end();
+});
   
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
   
