@@ -3,7 +3,7 @@
 const inquirer = require("inquirer");
 const { Console } = require('console');
 
-const pool = require('./server.js');
+const { pool, app }= require('./server.js');
 const { resolve } = require("path");
 
 
@@ -14,16 +14,16 @@ const mainQuestions = [
       name: "action", 
       message: "What would you like to do?",
       choices: ['View all departments', 'View all Roles', 'View all employees',  'Add department', 'Add role', 'Add an employee', 'Update an employee role', 'Quit']
-  }
-];
-
-const addDepartmentQuestions = [
+  },
   {
+    when: input => {
+      return input.action == 'Add department'
+    },
     type: "input", 
     name: "departmentName",
     message: "What is the name of the department?"
   }
-]
+];
 
 const addRoleQuestions = [
   {
@@ -66,11 +66,29 @@ function init() {
               case "View all departments":
 
                 queryFromAction = 'SELECT * FROM department';
+
+                pool.query(queryFromAction, function (err, {rows}) {
+                  if(err){
+                    res.status(500).json({ error: err.message });
+                    return;
+                  }
+                  renderTable(rows);
+                });
+
                 break;
 
               case "View all Roles":
 
                 queryFromAction = 'SELECT role.id, role.title, department.name as department, role.salary FROM role JOIN department ON role.department_id = department.id';
+
+                pool.query(queryFromAction, function (err, {rows}) {
+                  if(err){
+                    res.status(500).json({ error: err.message });
+                    return;
+                  }
+                  renderTable(rows);
+                });
+
                 break;
 
                 
@@ -105,13 +123,41 @@ function init() {
                   department_roles
                 ON 
                   employee.role_id = department_roles.role_id) 
-                  
+
                 SELECT id, first_name, last_name, title, department, salary, manager FROM employee_role LEFT JOIN manager_table ON employee_role.manager_id = manager_table.manager_id;`;
-                
+
+                pool.query(queryFromAction, function (err, {rows}) {
+                  if(err){
+                    res.status(500).json({ error: err.message });
+                    return;
+                  }
+                  renderTable(rows);
+                });
+            
                 break;
                 
               case "Add department":
-                inquirer.prompt(mainQuestions).then((options) => {});
+                console.log('checj')
+                app.post('/api/new-department', ({ body }, res) => {
+                  const sql = `INSERT INTO department (name)
+                    VALUES ($1)`;
+                    console.log(body.name)
+                  const params = [body.name];
+                  console.log(body)
+                  pool.query(sql, params, (err, result) => {
+                    console.log(body.name)
+                    if (err) {
+                      res.status(400).json({ error: err.message });
+                      console.log(body)
+                      return;
+                    }
+                    res.json({
+                      message: 'success',
+                      data: body
+                    });
+                    console.log(body.name)
+                  });
+                });
                   
                   break;
               case "Add role":
@@ -124,17 +170,11 @@ function init() {
                   
                   break;
               default:
-                  console.log("That's what you want it? You kill this app :(")
+                  console.log("Error")
                   break;
           }
 
-          pool.query(queryFromAction, function (err, {rows}) {
-            if(err){
-              console.log(err)
-            }
-            renderTable(rows);
-          });
-
+          
 
           init();
       }else{
