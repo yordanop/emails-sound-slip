@@ -25,24 +25,6 @@ const mainQuestions = [
   }
 ];
 
-const addRoleQuestions = [
-  {
-    type: "input", 
-    name: "roleName",
-    message: "What is the name of the Role?"
-  },
-  {
-    type: "input", 
-    name: "roleSalary",
-    message: "What is the salary of the role?"
-  },
-  {
-    type: "input", 
-    name: "roleSalary",
-    message: "Which department does the role belong to?"
-  }
-]
-
 
 
 function renderTable(tableRows){
@@ -128,7 +110,7 @@ function init() {
 
                 pool.query(queryFromAction, function (err, {rows}) {
                   if(err){
-                    res.status(500).json({ error: err.message });
+                    console.log(err)
                     return;
                   }
                   renderTable(rows);
@@ -137,27 +119,18 @@ function init() {
                 break;
                 
               case "Add department":
-                console.log('checj')
-                app.post('/api/new-department', ({ body }, res) => {
-                  const sql = `INSERT INTO department (name)
-                    VALUES ($1)`;
-                    console.log(body.name)
-                  const params = [body.name];
-                  console.log(body)
+
+                
+                  const sql = `INSERT INTO department (name) VALUES ($1)`;
+                  const params = [options.departmentName];
+
                   pool.query(sql, params, (err, result) => {
-                    console.log(body.name)
                     if (err) {
-                      res.status(400).json({ error: err.message });
-                      console.log(body)
+                      console.log(err)
                       return;
                     }
-                    res.json({
-                      message: 'success',
-                      data: body
-                    });
-                    console.log(body.name)
+              
                   });
-                });
                   
                   break;
               case "Add role":
