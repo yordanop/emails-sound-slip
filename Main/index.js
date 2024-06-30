@@ -40,7 +40,7 @@ const getListManagers = async () => {
 };
 
 // Function to retrieve departments from the departments table
-const getListrole = async () => {
+const getListRoles = async () => {
   try {
     const result = await pool.query('SELECT id, title FROM role');
     const roleChoices = result.rows.map(role => ({
@@ -98,6 +98,41 @@ const mainQuestions = [
     name: "roleDepartment",
     message: "Which department does the role belong to?",
     choices: getListDepartments
+  },
+  // if "add an employee" option selected, make these quesitons
+  {
+    when: input => {
+      return input.action == 'Add an employee'
+    },
+    type: "input", 
+    name: "employeeFirstName",
+    message: "What is the employee's first name?"
+  },
+  {
+    when: input => {
+      return input.action == 'Add an employee'
+    },
+    type: "input", 
+    name: "employeeLastName",
+    message: "What is the employee's last name?"
+  },
+  {
+    when: input => {
+      return input.action == 'Add an employee'
+    },
+    type: "list", 
+    name: "employeeRole",
+    message: "What is the employee's role?",
+    choices: getListRoles
+  },
+  {
+    when: input => {
+      return input.action == 'Add an employee'
+    },
+    type: "list", 
+    name: "employeeManager",
+    message: "Who is the employee's manager?",
+    choices: getListManagers
   }
 ];
 
