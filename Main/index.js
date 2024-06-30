@@ -188,6 +188,7 @@ function init() {
 
                 
               case "View all employees":
+
                 queryFromAction =  `With 
                 department_roles AS (
                 SELECT 
@@ -218,7 +219,6 @@ function init() {
                   department_roles
                 ON 
                   employee.role_id = department_roles.role_id) 
-
                 SELECT id, first_name, last_name, title, department, salary, manager FROM employee_role LEFT JOIN manager_table ON employee_role.manager_id = manager_table.manager_id;`;
 
                 pool.query(queryFromAction, function (err, {rows}) {
@@ -241,13 +241,14 @@ function init() {
                   if (err) {
                     console.log(err)
                     return;
-                  }
-              
+                  }              
                 });
                   
                   break;
               case "Add role":
+
               queryFromAction = 'INSERT INTO role (title, salary, department_id) VALUES ($1, $2, $3)';
+
               params = [options.roleName, options.roleSalary, options.roleDepartment];
 
               pool.query(queryFromAction, params, (err, result) => {
@@ -255,11 +256,21 @@ function init() {
                   console.log(err)
                   return;
                 }
-            
               });
                   
                   break;
               case "Add an employee":
+
+                queryFromAction = 'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4)';
+
+                params = [options.employeeFirstName, options.employeeLastName, options.employeeRole, options.employeeManager];
+
+                pool.query(queryFromAction, params, (err, result) => {
+                  if (err) {
+                    console.log(err)
+                    return;
+                  }
+              });
                   
                   break;
               case "Update an employee role":
