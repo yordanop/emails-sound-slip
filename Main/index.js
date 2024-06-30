@@ -1,5 +1,4 @@
-// Import and require needed packages
-
+// Require needed packages
 const inquirer = require("inquirer");
 const { Console } = require('console');
 
@@ -19,6 +18,39 @@ const getListDepartments = async () => {
     return departmentChoices;
   } catch (err) {
     console.error('Error retrieving departments:', err.stack);
+    return [];
+  }
+};
+
+// Function to retrieve Employees as managers from the employee table
+const getListManagers = async () => {
+  try {
+    const result = await pool.query(`SELECT id, CONCAT(first_name, ' ', last_name) AS manager_name FROM employee`);
+
+    const managerChoices = result.rows.map(manager => ({
+      name: manager.manager_name,
+      value: manager.id,
+    }));
+
+    return managerChoices;
+  } catch (err) {
+    console.error('Error retrieving managers:', err.stack);
+    return [];
+  }
+};
+
+// Function to retrieve departments from the departments table
+const getListrole = async () => {
+  try {
+    const result = await pool.query('SELECT id, title FROM role');
+    const roleChoices = result.rows.map(role => ({
+      name: role.title,
+      value: role.id,
+    }));
+
+    return roleChoices;
+  } catch (err) {
+    console.error('Error retrieving roles:', err.stack);
     return [];
   }
 };
