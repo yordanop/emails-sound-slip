@@ -80,7 +80,7 @@ const mainQuestions = [
       type: "list",
       name: "action", 
       message: "What would you like to do?",
-      choices: ['View all departments', 'View all Roles', 'View all employees',  'Add department', 'Add role', 'Add an employee', 'Update an employee role', 'Quit']
+      choices: ['View all departments', 'View all Roles', 'View all employees',  'Add department', 'Add role', 'Add an employee', 'Update an employee role', "Update an employee's manager", 'Quit']
   },
   {
     // if "add department" option selected, make this quesiton
@@ -152,10 +152,11 @@ const mainQuestions = [
     message: "Who is the employee's manager?",
     choices: getListManagers
   },
-  // if "add an employee" option selected, make these quesitons
+  // if "Update an employee role" option selected, make these quesitons
+  // or `Update an employee's manager`
   {
     when: input => {
-      return input.action == 'Update an employee role'
+      return ((input.action == 'Update an employee role') || (input.action == "Update an employee's manager"))
     },
     type: "list", 
     name: "employeeChosen",
@@ -170,6 +171,15 @@ const mainQuestions = [
     name: "roleToChange",
     message: "Which role do you want to assign the selected employee?",
     choices: getListRoles
+  },
+  {
+    when: input => {
+      return input.action == "Update an employee's manager"
+    },
+    type: "list", 
+    name: "managerToChange",
+    message: "Who is the new employee's manager?",
+    choices: getListManagers
   }
 ];
 
@@ -302,6 +312,16 @@ function init() {
               actionQuery(queryFromAction, params, false);
                   
                   break;
+
+                case "Update an employee's manager":
+
+                queryFromAction = 'UPDATE employee SET manager_id = $1 WHERE id = $2'
+  
+                params = [options.managerToChange, options.employeeChosen]
+  
+                actionQuery(queryFromAction, params, false);
+                    
+                    break;
               default:
                   console.log("Error")
                   break;
