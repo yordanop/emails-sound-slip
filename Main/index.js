@@ -23,21 +23,34 @@ const getListDepartments = async () => {
 };
 
 // Function to retrieve Employees as managers from the employee table
-const getListManagers = async () => {
+const getListEmployees = async () => {
   try {
-    const result = await pool.query(`SELECT id, CONCAT(first_name, ' ', last_name) AS manager_name FROM employee`);
+    const result = await pool.query(`SELECT id, CONCAT(first_name, ' ', last_name) AS employee_name FROM employee`);
 
-    const managerChoices = result.rows.map(manager => ({
-      name: manager.manager_name,
-      value: manager.id,
+    const employeeChoices = result.rows.map(employee => ({
+      name: employee.employee_name,
+      value: employee.id,
     }));
 
-    return managerChoices;
+    return employeeChoices;
   } catch (err) {
     console.error('Error retrieving managers:', err.stack);
     return [];
   }
 };
+
+// Function to add None for the managers list to the employees to choose from
+const getListManagers = async (employeesList) => {
+
+    employeesList.push({
+      name: 'None',
+      value: null,
+    });
+
+    return employeesList;
+
+};
+
 
 // Function to retrieve departments from the departments table
 const getListRoles = async () => {
