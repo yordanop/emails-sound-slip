@@ -80,7 +80,7 @@ const mainQuestions = [
       type: "list",
       name: "action", 
       message: "What would you like to do?",
-      choices: ['View all departments', 'View all Roles', 'View all employees',  'Add department', 'Add role', 'Add an employee', 'Update an employee role', "Update an employee's manager", "View employees by manager", 'Quit']
+      choices: ['View all departments', 'View all Roles', 'View all employees',  'Add department', 'Add role', 'Add an employee', 'Update an employee role', "Update an employee's manager", "View employees by manager", "View budget by department", 'Quit']
   },
   {
     // if "add department" option selected, make this quesiton
@@ -200,9 +200,6 @@ function actionQuery(sql, params, renderTable){
 
     };
 });
-
-
-  
   
 }
     
@@ -270,7 +267,15 @@ function init() {
                   department_roles
                 ON 
                   employee.role_id = department_roles.role_id) 
-                SELECT id, first_name, last_name, title, department, salary, manager FROM employee_role LEFT JOIN manager_table ON employee_role.manager_id = manager_table.manager_id;`;
+
+                SELECT 
+                  id, first_name, last_name, title, department, salary, manager 
+                FROM 
+                  employee_role 
+                LEFT JOIN 
+                  manager_table 
+                ON 
+                  employee_role.manager_id = manager_table.manager_id;`;
 
                 actionQuery(queryFromAction, [], true);
             
@@ -356,6 +361,37 @@ function init() {
                 actionQuery(queryFromAction, [], true);
 
                 break;
+
+              case "View budget by department":
+
+                queryFromAction = `With 
+                department_roles AS (
+                SELECT 
+                  role.id AS role_id, 
+                  salary, 
+                  department.name AS department 
+                FROM 
+                  role 
+                JOIN 
+                  department 
+                ON 
+                  role.department_id = department.id)
+
+
+                SELECT 
+                  department_roles.department,
+                  SUM(department_roles.salary)
+                FROM 
+                  employee 
+                JOIN 
+                  department_roles
+                ON 
+                  employee.role_id = department_roles.role_id
+                GROUP BY
+                  department_roles.department
+                  `
+
+                actionQuery(queryFromAction, [], true);
 
               default:
                 console.log("Error")
