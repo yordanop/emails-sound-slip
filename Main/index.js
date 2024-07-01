@@ -80,7 +80,7 @@ const mainQuestions = [
       type: "list",
       name: "action", 
       message: "What would you like to do?",
-      choices: ['View all departments', 'View all Roles', 'View all employees',  'Add department', 'Add role', 'Add an employee', 'Update an employee role', "Update an employee's manager", 'Quit']
+      choices: ['View all departments', 'View all Roles', 'View all employees',  'Add department', 'Add role', 'Add an employee', 'Update an employee role', "Update an employee's manager", "View employees by manager", 'Quit']
   },
   {
     // if "add department" option selected, make this quesiton
@@ -160,7 +160,7 @@ const mainQuestions = [
     },
     type: "list", 
     name: "employeeChosen",
-    message: "Which employee's role you want to update?",
+    message: "Which employee you want to update?",
     choices: getListEmployees
   },
   {
@@ -254,14 +254,14 @@ function init() {
                 ON 
                   role.department_id = department.id), 
 
-                manager_table as (
+                manager_table AS (
                 SELECT 
-                  id as manager_id, 
+                  id AS manager_id, 
                   CONCAT(first_name, ' ', last_name) AS manager 
                 FROM 
                   employee), 
 
-                employee_role as (
+                employee_role AS (
                 SELECT 
                   * 
                 FROM 
@@ -284,16 +284,18 @@ function init() {
 
                 actionQuery(queryFromAction, params, false);
                   
-                  break;
+                break;
+
               case "Add role":
 
-              queryFromAction = 'INSERT INTO role (title, salary, department_id) VALUES ($1, $2, $3)';
+                queryFromAction = 'INSERT INTO role (title, salary, department_id) VALUES ($1, $2, $3)';
 
-              params = [options.roleName, options.roleSalary, options.roleDepartment];
+                params = [options.roleName, options.roleSalary, options.roleDepartment];
 
-              actionQuery(queryFromAction, params, false);
+                actionQuery(queryFromAction, params, false);
                   
-                  break;
+                break;
+
               case "Add an employee":
 
                 queryFromAction = 'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4)';
@@ -302,18 +304,19 @@ function init() {
 
                 actionQuery(queryFromAction, params, false);
                   
-                  break;
+                break;
+
               case "Update an employee role":
 
-              queryFromAction = 'UPDATE employee SET role_id = $1 WHERE id = $2'
+                queryFromAction = 'UPDATE employee SET role_id = $1 WHERE id = $2'
 
-              params = [options.roleToChange, options.employeeChosen]
+                params = [options.roleToChange, options.employeeChosen]
 
-              actionQuery(queryFromAction, params, false);
+                actionQuery(queryFromAction, params, false);
                   
-                  break;
+                break;
 
-                case "Update an employee's manager":
+              case "Update an employee's manager":
 
                 queryFromAction = 'UPDATE employee SET manager_id = $1 WHERE id = $2'
   
@@ -321,10 +324,42 @@ function init() {
   
                 actionQuery(queryFromAction, params, false);
                     
-                    break;
+                break;
+
+              case "View employees by manager":
+
+                queryFromAction = `With
+                manager_table AS (
+                SELECT 
+                  id AS manager_id, 
+                  CONCAT(first_name, ' ', last_name) AS manager 
+                FROM 
+                  employee), 
+                employee_table AS (
+                SELECT 
+                  id AS employee_id, 
+                  CONCAT(first_name, ' ', last_name) AS employee_name , 
+                  manager_id
+                FROM 
+                  employee)
+                
+                SELECT manager,  ARRAY_AGG(employee_name) AS employees
+                FROM 
+                  employee_table
+                JOIN 
+                  manager_table
+                ON 
+                  employee_table.manager_id = manager_table.manager_id
+                GROUP BY 
+                  manager_table.manager`
+
+                actionQuery(queryFromAction, [], true);
+
+                break;
+
               default:
-                  console.log("Error")
-                  break;
+                console.log("Error")
+                break;
           }
           init();
 
