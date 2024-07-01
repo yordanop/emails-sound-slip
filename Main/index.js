@@ -42,12 +42,17 @@ const getListEmployees = async () => {
 // Function to add None for the managers list to the employees to choose from
 const getListManagers = async (employeesList) => {
 
-    employeesList.push({
+  try {
+    const managers = await getListEmployees();
+    managers.push({
       name: 'None',
       value: null,
     });
-
-    return employeesList;
+    return managers;
+  } catch (err) {
+    console.error('Error retrieving managers:', err.stack);
+    return [];
+  }
 
 };
 
@@ -181,6 +186,7 @@ function actionQuery(sql, params, renderTable){
 
       console.log('\n');
       console.table(result.rows);
+      console.log('\n');
 
     };
 });
@@ -291,7 +297,7 @@ function init() {
 
               queryFromAction = 'UPDATE employee SET role_id = $1 WHERE id = $2'
 
-              params = [options.employeeChosen, options.roleToChange]
+              params = [options.roleToChange, options.employeeChosen]
 
               actionQuery(queryFromAction, params, false);
                   
@@ -300,13 +306,13 @@ function init() {
                   console.log("Error")
                   break;
           }
-
-          
-
           init();
+
       }else{
-        console.log('Bye');
+
         pool.end();
+        console.log('Database connection closed. Exiting the application.');
+        process.exit();
 
       }
 
