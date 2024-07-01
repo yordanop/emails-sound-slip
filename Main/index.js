@@ -146,14 +146,48 @@ const mainQuestions = [
     name: "employeeManager",
     message: "Who is the employee's manager?",
     choices: getListManagers
+  },
+  // if "add an employee" option selected, make these quesitons
+  {
+    when: input => {
+      return input.action == 'Update an employee role'
+    },
+    type: "list", 
+    name: "employeeChosen",
+    message: "Which employee's role you want to update?",
+    choices: getListEmployees
+  },
+  {
+    when: input => {
+      return input.action == 'Update an employee role'
+    },
+    type: "list", 
+    name: "roleToChange",
+    message: "Which role do you want to assign the selected employee?",
+    choices: getListRoles
   }
 ];
 
 
 
-function renderTable(tableRows){
-  console.log('\n')
-  console.table(tableRows);
+function actionQuery(sql, params, renderTable){
+  pool.query(sql, params, (err, result) => {
+    if (err) {
+      console.log(err)
+      return;
+    };
+
+    if (renderTable){
+
+      console.log('\n');
+      console.table(result.rows);
+
+    };
+});
+
+
+  
+  
 }
     
 // Create a function to initialize app
@@ -175,13 +209,7 @@ function init() {
 
                 queryFromAction = 'SELECT * FROM department';
 
-                pool.query(queryFromAction, function (err, {rows}) {
-                  if(err){
-                    res.status(500).json({ error: err.message });
-                    return;
-                  }
-                  renderTable(rows);
-                });
+                actionQuery(queryFromAction, [], true);
 
                 break;
 
@@ -189,13 +217,7 @@ function init() {
 
                 queryFromAction = 'SELECT role.id, role.title, department.name as department, role.salary FROM role JOIN department ON role.department_id = department.id';
 
-                pool.query(queryFromAction, function (err, {rows}) {
-                  if(err){
-                    res.status(500).json({ error: err.message });
-                    return;
-                  }
-                  renderTable(rows);
-                });
+                actionQuery(queryFromAction, [], true);
 
                 break;
 
@@ -234,13 +256,7 @@ function init() {
                   employee.role_id = department_roles.role_id) 
                 SELECT id, first_name, last_name, title, department, salary, manager FROM employee_role LEFT JOIN manager_table ON employee_role.manager_id = manager_table.manager_id;`;
 
-                pool.query(queryFromAction, function (err, {rows}) {
-                  if(err){
-                    console.log(err)
-                    return;
-                  }
-                  renderTable(rows);
-                });
+                actionQuery(queryFromAction, [], true);
             
                 break;
                 
@@ -250,12 +266,7 @@ function init() {
                 queryFromAction = `INSERT INTO department (name) VALUES ($1)`;
                 params = [options.departmentName];
 
-                pool.query(queryFromAction, params, (err, result) => {
-                  if (err) {
-                    console.log(err)
-                    return;
-                  }              
-                });
+                actionQuery(queryFromAction, params, false);
                   
                   break;
               case "Add role":
@@ -264,12 +275,7 @@ function init() {
 
               params = [options.roleName, options.roleSalary, options.roleDepartment];
 
-              pool.query(queryFromAction, params, (err, result) => {
-                if (err) {
-                  console.log(err)
-                  return;
-                }
-              });
+              actionQuery(queryFromAction, params, false);
                   
                   break;
               case "Add an employee":
@@ -278,15 +284,16 @@ function init() {
 
                 params = [options.employeeFirstName, options.employeeLastName, options.employeeRole, options.employeeManager];
 
-                pool.query(queryFromAction, params, (err, result) => {
-                  if (err) {
-                    console.log(err)
-                    return;
-                  }
-              });
+                actionQuery(queryFromAction, params, false);
                   
                   break;
               case "Update an employee role":
+
+              queryFromAction = 'UPDATE employee SET role_id = $1 WHERE id = $2'
+
+              params = [options.employeeChosen, options.roleToChange]
+
+              actionQuery(queryFromAction, params, false);
                   
                   break;
               default:
