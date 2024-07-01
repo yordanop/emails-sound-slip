@@ -2,8 +2,15 @@
   
   ## Description
 
-    This is a command-line application to manage a company's employee database, using Node.js, Inquirer, and PostgreSQL.
+  This is a command-line application to manage a company's employee database, using Node.js, Inquirer, and PostgreSQL.
 
+  ## Github repository
+
+  https://github.com/yordanop/emails-sound-slip
+
+  ## Video example
+
+  https://drive.google.com/file/d/1esvnhEij12HcEZCYB7tGD6dQJTXO8Obz/view
 
   ## Questions
 
